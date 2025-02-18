@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -20,7 +20,9 @@ model User {
 }
 
 model Product {
-  id    String @id @default(uuid())
-  name  String @unique
-  price Float
+  id    Int    @id @default(autoincrement())
+  name  String @unique                      
+  price Float                               
+  image String                              
+  createdAt DateTime @default(now())        
 }

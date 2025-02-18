@@ -45,8 +45,8 @@ fastify.post("/login", async (req, reply) => {
 });
 
 fastify.post("/add-product", async (req, reply) => {
-  const { name, price } = req.body;
-  const products = prisma.product.findUnique({ where: name });
+  const { name, price, image } = req.body;
+  const products = await prisma.product.findUnique({ where: {name} });
 
   try {
     if (products) {
@@ -54,7 +54,7 @@ fastify.post("/add-product", async (req, reply) => {
     }
 
     const product = await prisma.product.create({
-      data: { name, price },
+      data: { name, price, image },
     });
     reply.send(product);
   } catch (error) {
