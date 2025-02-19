@@ -27,7 +27,10 @@ fastify.post("/register", async (req, reply) => {
     });
     reply.send(user);
   } catch (error) {
-    reply.status(400).send({ error: "Email sudah digunakan" });
+    if (error.code === "P2002") {
+      reply.status(400).send({ error: "Email sudah digunakan" });
+    }
+    reply.status(500).send({ error: "Terjadi kesalaham pada server" });
   }
 });
 
@@ -46,19 +49,26 @@ fastify.post("/login", async (req, reply) => {
 
 fastify.post("/add-product", async (req, reply) => {
   const { name, price, image } = req.body;
-  const products = await prisma.product.findUnique({ where: {name} });
+
+  const existProduct = await prisma.product.findUnique({where : {name}})
 
   try {
-    if (products) {
-      return reply.status(400).send({ error: "Nama product sudah digunakan" });
+
+    if(existProduct){
+      return reply.status(404).send({error: "Name product sudah digunakan"})
     }
 
     const product = await prisma.product.create({
-      data: { name, price, image },
+      data: {
+        name,
+        price,
+        image,
+      },
     });
     reply.send(product);
   } catch (error) {
-    reply.status(400).send({ error: "product sudah digunakan" });
+    console.error(error);
+    reply.status(400).send({ error: "product gagal di upload" });
   }
 });
 
