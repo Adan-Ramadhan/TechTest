@@ -3,9 +3,9 @@ import TWithId from "./with-id"
 export type TProduct = {
     name: string,
     price: number,
-    createdAt: string,
+    createdAt?: string,
     image: string,
-    categoryId: number
+    categoryId: number,
 }
 
 

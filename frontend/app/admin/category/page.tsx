@@ -3,9 +3,15 @@
 import { TCategoryWithId } from "@/types/category";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import Select from "react-select";
+import dynamic from "next/dynamic";
+const Select = dynamic(() => import("react-select"), { ssr: false });
 
-const Category = () => {
+
+type TProps = {
+    handleCategoryChange: () => void
+} 
+
+const Category = ({handleCategoryChange}: TProps) => {
   const base_url = process.env.NEXT_PUBLIC_API_URL;
 
 const [category, setCategory] = useState<TCategoryWithId[]>([])
@@ -38,6 +44,7 @@ const categoriesMapping = (category: TCategoryWithId) => ({
       name="colors"
       className="basic-multi-select"
       classNamePrefix="select"
+      onChange={handleCategoryChange}
       options={category.map(categoriesMapping)}
     />
   );
