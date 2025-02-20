@@ -21,18 +21,24 @@ export const login = async (req, reply, fastify) => {
 };
 
 export const register = async (req, reply, fastify) => {
-  const { email, password } = req.body; 
-  const hashedPassword = await bcrypt.hash(password, 10);
   try {
+
+
+    const { email, password } = req.body; 
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    const existEmail = await prisma.user.findUnique({where: {email}})
+    if (existingUser) {
+      return reply.status(400).send({ error: "Email sudah digunakan" });
+    }
+
+    
     const user = await prisma.user.create({
       data: { email, password: hashedPassword },
     });
     reply.send(user);
   } catch (error) {
     console.error("Error saat registrasi:", error);
-    if (error.code === "P2002") {
-      reply.status(400).send({ error: "Email sudah digunakan" });
-    }
     reply.status(500).send({ error: "Terjadi kesalaham pada server" });
   }
 };
