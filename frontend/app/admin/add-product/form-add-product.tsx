@@ -25,10 +25,11 @@ const FormAddProduct = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, image: e.target.files?.[0] || null });
+    const file = e.target.files?.[0];
+    setFormData({ ...formData, image: file ? URL.createObjectURL(file) : "" });
   };
 
-  const handleCategoryChange = (selectedOption: any) => {
+  const handleCategoryChange = (selectedOption: number) => {
     setFormData({ ...formData, categoryId: selectedOption });
   };
 
@@ -38,12 +39,12 @@ const FormAddProduct = () => {
     const productData = new FormData();
 
     productData.append("name", formData.name);
-    productData.append("price", formData.price);
+    productData.append("price", formData.price.toString());
     if (formData.image) {
       productData.append("image", formData.image);
     }
     if (formData.categoryId) {
-      productData.append("category", formData.categoryId);
+      productData.append("category", formData.categoryId.toString());
     }
 
     try {
@@ -64,6 +65,7 @@ const FormAddProduct = () => {
         <label>Product Name</label>
         <input
           type="text"
+          name="name"
           onChange={handleChange}
           placeholder="Masukan nama product anda..."
           className="border rounded p-2 mb-3"
@@ -71,7 +73,8 @@ const FormAddProduct = () => {
 
         <label>Price</label>
         <input
-          type="text"
+          type="number"
+          name="price"
           onChange={handleChange}
 
           placeholder="Masukan price product anda..."
@@ -80,7 +83,7 @@ const FormAddProduct = () => {
 
         <label>image</label>
           
-          <input type="file" onChange={handleFileChange}  className=" p-2 mb-3" />
+          <input type="file"  onChange={handleFileChange}  className=" p-2 mb-3" />
 
         <label>Choses Category</label>
         <Category handleCategoryChange={() => handleCategoryChange} />

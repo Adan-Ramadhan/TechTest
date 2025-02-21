@@ -16,8 +16,12 @@ export const getProduct = async (req, reply) => {
 export const addProduct = async (req, reply) => {
   try {
     const { name, price, image, categoryId } = req.body;
+
+    const formattedPrice = parseFloat(price);
+    const formattedCategoryId = parseInt(categoryId);
+
     const existCategory = await prisma.category.findUnique({
-      where: { id: categoryId },
+      where: { id: formattedCategoryId },
     });
     const existProduct = await prisma.product.findUnique({ where: { name } });
 
@@ -30,7 +34,12 @@ export const addProduct = async (req, reply) => {
     }
 
     const product = await prisma.product.create({
-      data: { name, price, image, categoryId },
+      data: {
+        name,
+        price: formattedPrice,
+        categoryId: formattedCategoryId,
+        image,
+      },
     });
 
     reply.send(product);
@@ -87,7 +96,6 @@ export const updateProduct = async (req, reply) => {
       data: { name, price, image, categoryId },
     });
     reply.send(updatedProduct);
-
   } catch (err) {
     console.error(err);
     reply.status(500).send({ error: "Gagal mengupdate product" });
