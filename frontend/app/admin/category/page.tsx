@@ -8,7 +8,7 @@ const Select = dynamic(() => import("react-select"), { ssr: false });
 
 
 type TProps = {
-    handleCategoryChange: () => void
+  handleCategoryChange: (selectedOption: { label: string; value: number } | null) => void;
 } 
 
 const Category = ({handleCategoryChange}: TProps) => {

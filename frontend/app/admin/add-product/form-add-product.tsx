@@ -29,8 +29,10 @@ const FormAddProduct = () => {
     setFormData({ ...formData, image: file ? URL.createObjectURL(file) : "" });
   };
 
-  const handleCategoryChange = (selectedOption: number) => {
-    setFormData({ ...formData, categoryId: selectedOption });
+  const handleCategoryChange = (selectedOption: { label: string; value: number } | null) => {
+    if (selectedOption) {
+      setFormData({ ...formData, categoryId: selectedOption.value });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,9 +50,11 @@ const FormAddProduct = () => {
     }
 
     try {
-      await axios.post(`${base_url}/product`, productData, {
+      const response = await axios.post(`${base_url}/add-product`, productData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
+      console.log(response)
       alert("Product berhasil ditambahkan!");
     } catch (err) {
       console.error("Gagal menambahkan produk", err);
@@ -86,7 +90,7 @@ const FormAddProduct = () => {
           <input type="file"  onChange={handleFileChange}  className=" p-2 mb-3" />
 
         <label>Choses Category</label>
-        <Category handleCategoryChange={() => handleCategoryChange} />
+        <Category handleCategoryChange={handleCategoryChange} />
         <Button type="submit" className="my-5 font-semibold">
           Submit
         </Button>
