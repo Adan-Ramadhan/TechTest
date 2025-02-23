@@ -4,7 +4,9 @@ const prisma = new PrismaClient();
 
 export const getProduct = async (req, reply) => {
   try {
-    const products = await prisma.product.findMany();
+    const products = await prisma.product.findMany({
+      include: { categories: true },
+    });
 
     reply.send(products);
   } catch (err) {
@@ -15,15 +17,14 @@ export const getProduct = async (req, reply) => {
 
 export const addProduct = async (req, reply) => {
   try {
-    const { name, price, image, categoryId } = req.body;
+    const { name, price, image, categoryIds } = req.body;
 
     const formattedPrice = parseFloat(price);
-    const formattedCategoryId = parseInt(categoryId);
-
+    const formattedCategoryId = parseInt(categoryIds);
+    const existProduct = await prisma.product.findUnique({ where: { name } });
     const existCategory = await prisma.category.findUnique({
       where: { id: formattedCategoryId },
     });
-    const existProduct = await prisma.product.findUnique({ where: { name } });
 
     if (!existCategory) {
       return reply.status(404).send({ error: "Category tidak ditemukan" });
@@ -37,8 +38,8 @@ export const addProduct = async (req, reply) => {
       data: {
         name,
         price: formattedPrice,
-        categoryId: formattedCategoryId,
         image,
+        categoryIds: categoryIds.map((id) => ({ id })),
       },
     });
 
@@ -74,26 +75,35 @@ export const deleteProduct = async (req, reply) => {
 export const updateProduct = async (req, reply) => {
   try {
     const { id } = req.params;
-    const { name, price, image, categoryId } = req.body;
+    const { name, price, image, categoryIds } = req.body;
 
+    const formattedPrice = parseFloat(price);
     const existProduct = await prisma.product.findUnique({
       where: { id: Number(id) },
+    });
+    const existCategory = await prisma.category.findUnique({
+      where: { id: Number(categoryIds) },
     });
 
     if (!existProduct) {
       return reply.status(404).send({ error: "Product tidak ditemukan" });
     }
 
-    const existCategory = await prisma.category.findUnique({
-      where: { id: Number(categoryId) },
-    });
-
     if (!existCategory) {
       return reply.status(400).send({ error: "Category tidak ditemukan" });
     }
     const updatedProduct = await prisma.product.update({
       where: { id: Number(id) },
-      data: { name, price, image, categoryId },
+      data: {
+        name,
+        price: formattedPrice,
+        image,
+        categories: {
+          set: categoryIds.map((id) => {
+            id;
+          }),
+        },
+      },
     });
     reply.send(updatedProduct);
   } catch (err) {
