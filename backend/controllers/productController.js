@@ -20,26 +20,25 @@ export const addProduct = async (req, reply) => {
     const { name, price, image, categoryIds } = req.body;
 
     const formattedPrice = parseFloat(price);
-    const formattedCategoryId = parseInt(categoryIds);
     const existProduct = await prisma.product.findUnique({ where: { name } });
-    const existCategory = await prisma.category.findUnique({
-      where: { id: formattedCategoryId },
+    const existCategory = await prisma.category.findMany({
+      where: { id: {in: categoryIds} },
     });
 
-    if (!existCategory) {
-      return reply.status(404).send({ error: "Category tidak ditemukan" });
-    }
-
+    
     if (existProduct) {
       return reply.status(400).send({ error: "Name product sudah ada" });
     }
-
+    
+    if (existCategory.length !== categoryIds.length) {
+      return reply.status(404).send({ error: "Salah satu atau lebih kategori tidak ditemukan" });
+    }
     const product = await prisma.product.create({
       data: {
         name,
         price: formattedPrice,
         image,
-        categoryIds: categoryIds.map((id) => ({ id })),
+        categories: { connect: categoryIds.map((id) => ({ id }))},
       },
     });
 
